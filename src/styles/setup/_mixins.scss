@@ -1,0 +1,55 @@
+/* Breakpoint mixins */
+
+//mobile only
+@mixin for-mobile-only-layout {
+    @media (max-width: $mobile-breakpoint) {
+        @content;
+    }
+}
+
+// //mobile & tablet only
+@mixin for-narrow-only-layout {
+    @media (max-width: $narrow-breakpoint) {
+        @content;
+    }
+}
+
+//tablet and wider
+@mixin for-narrow-layout {
+    @media (min-width: $narrow-breakpoint) {
+        @content;
+    }
+}
+
+//small desktop and wider
+@mixin for-normal-layout {
+    @media (min-width: $normal-breakpoint) {
+        @content;
+    }
+}
+
+/* Media  Mixins */
+@mixin aspect-ratio($width, $height) {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        display: block;
+        content: "";
+        width: 100%;
+        padding-top: calc(($height / $width) * 100%);
+    }
+
+    >* {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    >img {
+        height: 100%;
+        object-fit: cover;
+    }
+}

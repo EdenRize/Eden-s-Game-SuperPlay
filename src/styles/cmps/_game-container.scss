@@ -1,0 +1,21 @@
+.game-container {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 400px;
+    height: 774px;
+    background-color: $secondary-clr;
+    color: $secondary-clr;
+    border: 15px solid $secondary-clr;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .background {
+        position: absolute;
+        height: 100%;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+    }
+}
