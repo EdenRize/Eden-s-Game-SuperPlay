@@ -1,4 +1,4 @@
-import { Game } from "./Game2";
+import { Game } from "./Game";
 
 export function GameContainer() {
     return (

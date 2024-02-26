@@ -1,0 +1,29 @@
+.foods-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    width: 300px;
+
+    .food {
+        width: 75px;
+        height: 80px;
+        object-fit: contain;
+        cursor: grab;
+        animation: breath 3s infinite;
+
+
+        &.drag {
+            animation: unset;
+        }
+    }
+}
+
+@keyframes breath {
+    50% {
+        scale: 1.1;
+    }
+
+    100% {
+        scale: 1;
+    }
+}

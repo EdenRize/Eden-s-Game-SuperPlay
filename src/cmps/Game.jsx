@@ -1,73 +1,91 @@
-import React from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { useEffect, useRef, useState } from 'react';
+import { getFoods } from '../services/game';
+import { FoodsList } from './FoodsList';
 
 export function Game() {
-    const foods = [
-        { src: '/src/assets/img/fruit.png', isEaten: false },
-        { src: '/src/assets/img/strawberry.png', isEaten: false },
-        { src: '/src/assets/img/candy.png', isEaten: false },
-        { src: '/src/assets/img/apple.png', isEaten: false },
-        { src: '/src/assets/img/cupcake.png', isEaten: false },
-        { src: '/src/assets/img/chocolate-apple.png', isEaten: false },
-    ];
+    const [foods, setFoods] = useState(getFoods());
+    const [gameOver, setGameOver] = useState(false);
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [isOverFeedContainer, setIsOverFeedContainer] = useState(false);
+    const clickedFoodRef = useRef(null);
 
-    function handleDragEnd(result) {
-        if (!result.destination) return
-
-        if (result.destination.droppableId === 'feed-container') {
-            foods[+result.draggableId].isEaten = true
-            console.log('feed!');
+    useEffect(() => {
+        if (clickedFoodRef.current) {
+            clickedFoodRef.current.style.top = `${mousePosition.y - 42}px`;
+            clickedFoodRef.current.style.left = `${mousePosition.x - 38}px`;
         }
+    }, [mousePosition]);
 
-    };
+    useEffect(() => {
+        if (isGameOver()) {
+            setGameOver(true)
+            setIsOverFeedContainer(true)
+        }
+    }, [foods])
+
+    function isGameOver() {
+        return foods.every(food => food.isEaten)
+    }
+
+    function handleFoodMouseDown(ev) {
+        ev.preventDefault();
+        const foodEl = ev.target;
+        foodEl.classList.add('drag');
+        clickedFoodRef.current = foodEl;
+        foodEl.style.position = 'fixed';
+        const clientX = ev.type === 'touchstart' ? ev.touches[0].clientX : ev.clientX;
+        const clientY = ev.type === 'touchstart' ? ev.touches[0].clientY : ev.clientY;
+        setMousePosition({ x: clientX, y: clientY });
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('touchmove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('touchend', handleMouseUp);
+    }
+
+    function handleMouseMove(ev) {
+        ev.preventDefault();
+        const clientX = ev.type === 'touchmove' ? ev.touches[0].clientX : ev.clientX;
+        const clientY = ev.type === 'touchmove' ? ev.touches[0].clientY : ev.clientY;
+        setMousePosition({ x: clientX, y: clientY });
+        if (ev.target.classList.contains('feed-container')) {
+            setIsOverFeedContainer(true);
+        } else {
+            setIsOverFeedContainer(false);
+        }
+    }
+
+    function handleMouseUp(ev) {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('touchmove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener('touchend', handleMouseUp);
+        if (clickedFoodRef.current) {
+            clickedFoodRef.current.classList.remove('drag');
+            if (ev.target.classList.contains('feed-container')) {
+                const foodName = clickedFoodRef.current.classList[1];
+                const foodIdx = foods.findIndex(food => food.name === foodName);
+                setFoods(prevFoods => {
+                    const updatedFoods = [...prevFoods];
+                    updatedFoods[foodIdx].isEaten = true;
+                    return updatedFoods;
+                });
+            } else {
+                clickedFoodRef.current.style.position = 'unset';
+                clickedFoodRef.current.style.top = 'unset';
+                clickedFoodRef.current.style.left = 'unset';
+            }
+            clickedFoodRef.current = null;
+            setIsOverFeedContainer(false);
+        }
+    }
 
     return (
-        <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="game">
-                {(provided) => (
-                    <div className="game" ref={provided.innerRef} {...provided.droppableProps}>
-                        <div className="peon-container">
-                            <img className="peon" src="/src/assets/img/Peon.png" />
-                            <Droppable droppableId="feed-container">
-                                {(provided) => (
-
-                                    <div className="feed-container" ref={provided.innerRef} {...provided.droppableProps}>
-                                        {provided.placeholder}
-                                    </div>
-                                )}
-                            </Droppable>
-                        </div>
-                        <Droppable droppableId="food-list" direction="horizontal">
-                            {(provided) => (
-                                <ul className="clean-list foods-list" ref={provided.innerRef} {...provided.droppableProps}>
-                                    {foods.map((food, idx) => (
-                                        <Draggable key={idx} draggableId={`${idx}`} index={idx}>
-                                            {(provided) => (
-                                                <li>
-                                                    {!food.isEaten ? <img ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        src={food.src}
-                                                        className="food" />
-
-                                                        :
-
-                                                        <div className='food' ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps} ></div>
-                                                    }
-                                                </li>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </ul>
-                            )}
-                        </Droppable>
-                        {provided.placeholder}
-                    </div>
-                )}
-            </Droppable>
-        </DragDropContext>
+        <div className="game">
+            <div className="peon-container">
+                <img className="peon" src={isOverFeedContainer ? "/src/assets/img/Candy_peon.png" : "/src/assets/img/Peon.png"} />
+                <div className="feed-container"></div>
+            </div>
+            <FoodsList foods={foods} handleFoodMouseDown={handleFoodMouseDown} />
+        </div>
     );
 }
