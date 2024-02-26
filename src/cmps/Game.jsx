@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { getFoods } from '../services/game';
 import { FoodsList } from './FoodsList';
 
-export function Game() {
+export function Game({ onGameOver }) {
     const [foods, setFoods] = useState(getFoods());
-    const [gameOver, setGameOver] = useState(false);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isOverFeedContainer, setIsOverFeedContainer] = useState(false);
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const clickedFoodRef = useRef(null);
 
     useEffect(() => {
@@ -18,13 +17,21 @@ export function Game() {
 
     useEffect(() => {
         if (isGameOver()) {
-            setGameOver(true)
             setIsOverFeedContainer(true)
+            setTimeout(() => {
+                onGameOver()
+                startGame()
+            }, 1000);
         }
     }, [foods])
 
     function isGameOver() {
         return foods.every(food => food.isEaten)
+    }
+
+    function startGame() {
+        setFoods(getFoods())
+        setIsOverFeedContainer(false)
     }
 
     function handleFoodMouseDown(ev) {

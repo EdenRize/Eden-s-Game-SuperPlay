@@ -28,28 +28,14 @@
     }
 }
 
-/* Media  Mixins */
-@mixin aspect-ratio($width, $height) {
-    position: relative;
-    overflow: hidden;
+@mixin breath {
+    @keyframes breath {
+        50% {
+            scale: 1.1;
+        }
 
-    &::before {
-        display: block;
-        content: "";
-        width: 100%;
-        padding-top: calc(($height / $width) * 100%);
-    }
-
-    >* {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-    }
-
-    >img {
-        height: 100%;
-        object-fit: cover;
+        100% {
+            scale: 1;
+        }
     }
 }

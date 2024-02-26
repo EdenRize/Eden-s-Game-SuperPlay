@@ -18,12 +18,4 @@
     }
 }
 
-@keyframes breath {
-    50% {
-        scale: 1.1;
-    }
-
-    100% {
-        scale: 1;
-    }
-}
+@include breath
