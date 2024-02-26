@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { getFoods } from '../services/game';
 import { FoodsList } from './FoodsList';
+import { Score } from './Score';
 
 export function Game({ onGameOver }) {
     const [foods, setFoods] = useState(getFoods());
     const [isOverFeedContainer, setIsOverFeedContainer] = useState(false);
+    const [isShowScore, setIsShowScore] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const clickedFoodRef = useRef(null);
 
@@ -43,10 +45,7 @@ export function Game({ onGameOver }) {
         const clientX = ev.type === 'touchstart' ? ev.touches[0].clientX : ev.clientX;
         const clientY = ev.type === 'touchstart' ? ev.touches[0].clientY : ev.clientY;
         setMousePosition({ x: clientX, y: clientY });
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('touchmove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-        window.addEventListener('touchend', handleMouseUp);
+        addListeners()
     }
 
     function handleMouseMove(ev) {
@@ -62,20 +61,11 @@ export function Game({ onGameOver }) {
     }
 
     function handleMouseUp(ev) {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('touchmove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-        window.removeEventListener('touchend', handleMouseUp);
+        removeListeners()
         if (clickedFoodRef.current) {
             clickedFoodRef.current.classList.remove('drag');
             if (ev.target.classList.contains('feed-container')) {
-                const foodName = clickedFoodRef.current.classList[1];
-                const foodIdx = foods.findIndex(food => food.name === foodName);
-                setFoods(prevFoods => {
-                    const updatedFoods = [...prevFoods];
-                    updatedFoods[foodIdx].isEaten = true;
-                    return updatedFoods;
-                });
+                onFoodEat()
             } else {
                 clickedFoodRef.current.style.position = 'unset';
                 clickedFoodRef.current.style.top = 'unset';
@@ -86,13 +76,45 @@ export function Game({ onGameOver }) {
         }
     }
 
+    function onFoodEat() {
+        const foodName = clickedFoodRef.current.classList[1];
+        const foodIdx = foods.findIndex(food => food.name === foodName);
+        setFoods(prevFoods => {
+            const updatedFoods = [...prevFoods];
+            updatedFoods[foodIdx].isEaten = true;
+            return updatedFoods;
+        });
+        setIsShowScore(true)
+        setTimeout(() => {
+            setIsShowScore(false)
+        }, 1400);
+    }
+
+    function addListeners() {
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('touchmove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('touchend', handleMouseUp);
+    }
+
+    function removeListeners() {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('touchmove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener('touchend', handleMouseUp);
+    }
+
     return (
         <div className="game">
+
             <div className="peon-container">
                 <img className="peon" src={isOverFeedContainer ? "/src/assets/img/Candy_peon.png" : "/src/assets/img/Peon.png"} />
                 <div className="feed-container"></div>
             </div>
+
             <FoodsList foods={foods} handleFoodMouseDown={handleFoodMouseDown} />
+
+            {isShowScore && <Score />}
         </div>
     );
 }
