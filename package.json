@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://edenrize.github.io/Eden-s-Game-SuperPlay/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
