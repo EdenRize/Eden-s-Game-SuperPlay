@@ -11,6 +11,7 @@ export function Game({ onGameOver }) {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const clickedFoodRef = useRef(null);
     const scoreTimeOut = useRef(null);
+    const peonTimeOut = useRef(null);
 
     useEffect(() => {
         if (clickedFoodRef.current) {
@@ -21,6 +22,7 @@ export function Game({ onGameOver }) {
 
     useEffect(() => {
         if (isGameOver()) {
+            clearTimeout(peonTimeOut.current)
             setIsOverFeedContainer(true)
             setTimeout(() => {
                 onGameOver()
@@ -55,6 +57,7 @@ export function Game({ onGameOver }) {
         const clientX = ev.type === 'touchmove' ? ev.touches[0].clientX : ev.clientX;
         const clientY = ev.type === 'touchmove' ? ev.touches[0].clientY : ev.clientY;
         setMousePosition({ x: clientX, y: clientY });
+
         if (ev.target.classList.contains('feed-container')) {
             setIsOverFeedContainer(true);
         } else {
@@ -74,14 +77,15 @@ export function Game({ onGameOver }) {
                 clickedFoodRef.current.style.left = 'unset';
             }
             clickedFoodRef.current = null;
-            setIsOverFeedContainer(false);
+            peonTimeOut.current = setTimeout(() => {
+                setIsOverFeedContainer(false);
+            }, 0.1);
         }
     }
 
     function onFoodEat() {
-        clearTimeout(scoreTimeOut.current)
         playSound()
-
+        setIsShowScore(false)
         const foodName = clickedFoodRef.current.classList[1];
         const foodIdx = foods.findIndex(food => food.name === foodName);
         setFoods(prevFoods => {
@@ -89,6 +93,17 @@ export function Game({ onGameOver }) {
             updatedFoods[foodIdx].isEaten = true;
             return updatedFoods;
         });
+        clearTimeout(scoreTimeOut.current)
+
+        if (isShowScore) {
+            scoreTimeOut.current = setTimeout(() => {
+                setIsShowScore(true)
+                scoreTimeOut.current = setTimeout(() => {
+                    setIsShowScore(false)
+                }, 1400);
+            }, 0);
+            return
+        }
 
         setIsShowScore(true)
         scoreTimeOut.current = setTimeout(() => {
