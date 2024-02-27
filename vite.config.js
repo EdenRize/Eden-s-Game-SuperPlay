@@ -8,8 +8,6 @@ export default defineConfig({
   build: {
     // Specify the entry point for your JavaScript files
     // Example: src/main.js
-    rollupOptions: {
-      input: '/src'
-    }
+
   }
 })
