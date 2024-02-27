@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getFoods } from '../services/game';
 import { FoodsList } from './FoodsList';
 import { Score } from './Score';
+import feedSound from '../assets/sound/feed.wav'
 
 export function Game({ onGameOver }) {
     const [foods, setFoods] = useState(getFoods());
@@ -9,6 +10,7 @@ export function Game({ onGameOver }) {
     const [isShowScore, setIsShowScore] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const clickedFoodRef = useRef(null);
+    const scoreTimeOut = useRef(null);
 
     useEffect(() => {
         if (clickedFoodRef.current) {
@@ -77,6 +79,9 @@ export function Game({ onGameOver }) {
     }
 
     function onFoodEat() {
+        clearTimeout(scoreTimeOut.current)
+        playSound()
+
         const foodName = clickedFoodRef.current.classList[1];
         const foodIdx = foods.findIndex(food => food.name === foodName);
         setFoods(prevFoods => {
@@ -84,8 +89,9 @@ export function Game({ onGameOver }) {
             updatedFoods[foodIdx].isEaten = true;
             return updatedFoods;
         });
+
         setIsShowScore(true)
-        setTimeout(() => {
+        scoreTimeOut.current = setTimeout(() => {
             setIsShowScore(false)
         }, 1400);
     }
@@ -102,6 +108,12 @@ export function Game({ onGameOver }) {
         window.removeEventListener('touchmove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
         window.removeEventListener('touchend', handleMouseUp);
+    }
+
+    function playSound() {
+        const audio = new Audio(feedSound)
+        audio.volume = 0.5
+        audio.play()
     }
 
     return (

@@ -1,7 +1,10 @@
 .score {
     position: absolute;
-    top: 0;
-    font-size: 3rem;
+    top: 220px;
+    right: 90px;
+    font-size: 3.5rem;
+    color: $main-clr;
+    text-shadow: 2px 2px 1px black;
     font-family: curse;
     animation: fadeAndMove 1.2s forwards;
 
