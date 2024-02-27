@@ -4,5 +4,12 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/Eden-s-Game-SuperPlay/'
+  base: '/',
+  build: {
+    // Specify the entry point for your JavaScript files
+    // Example: src/main.js
+    rollupOptions: {
+      input: 'src/index.jsx'
+    }
+  }
 })
