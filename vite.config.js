@@ -9,7 +9,7 @@ export default defineConfig({
     // Specify the entry point for your JavaScript files
     // Example: src/main.js
     rollupOptions: {
-      input: 'src/index.jsx'
+      input: '/src'
     }
   }
 })
